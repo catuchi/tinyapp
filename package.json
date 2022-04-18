@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/catuchi/tinyapp/issues"
   },
-  "homepage": "https://github.com/catuchi/tinyapp#readme"
+  "homepage": "https://github.com/catuchi/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
 }
