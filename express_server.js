@@ -21,6 +21,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+
 // setting up the server to listen to request from the client
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
