@@ -12,9 +12,14 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+// add route /urls.json
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-})
+});
+
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
 
 // setting up the server to listen to request from the client
 app.listen(PORT, () => {
