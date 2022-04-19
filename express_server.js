@@ -1,9 +1,14 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bodyParser = require("body-parser");
+
+// middleware used to make data received from POST requests to be readable
+app.use(bodyParser.urlencoded({extended: true}));
 
 // instruct Express app to use EJS as templating engine
 app.set("view engine", "ejs");
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
