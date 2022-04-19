@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const { generateRandomString } = require("./shortURL");
 
 // middleware used to make data received from POST requests to be readable
 app.use(bodyParser.urlencoded({extended: true}));
