@@ -44,6 +44,11 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send("OK");
+});
+
 
 
 // setting up the server to listen to request from the client
