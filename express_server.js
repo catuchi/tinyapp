@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser')
 const { generateRandomString } = require("./shortURL");
 
 // middleware used to make data received from POST requests to be readable
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
 
 // instruct Express app to use EJS as templating engine
@@ -37,9 +37,9 @@ const urlDatabase = {
 // };
 
 const users = {
-  1: {id: 1, email: 'obiwan@gmail.com',  password: 'helloThere'},
-  2: {id: 2, email: 'gimli@gmail.com',   password: 'andMyAxe'},
-  3: {id: 3, email: 'a@b.com',       password: '123'},
+  1: { id: 1, email: 'obiwan@gmail.com', password: 'helloThere' },
+  2: { id: 2, email: 'gimli@gmail.com', password: 'andMyAxe' },
+  3: { id: 3, email: 'a@b.com', password: '123' },
 };
 
 const findUserByEmail = (newUserEmail, database) => {
@@ -52,8 +52,18 @@ const findUserByEmail = (newUserEmail, database) => {
       return database[user];
       //  badd, dont do this line below !
       // return res.redirect(`/${userKey}`);
-
     }
+  }
+  return false;
+}
+const findUser = (newUserEmail, newUserPw, database) => {
+  for (let user in database) {
+    if (database[user].email === newUserEmail) {
+      if (database[user].password === newUserPw) {
+        return database[user];
+      }
+    }
+
   }
   return false;
 }
@@ -124,10 +134,30 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.body)
-  const user = req.body.username;
-  res.cookie("username", user);
+
+  const newUserEmail = req.body.email;
+  const newUserPassword = req.body.password;
+  // const { email, password } = req.body;
+
+  const emailTest = findUserByEmail(newUserEmail, users)
+  if (emailTest) {
+    res.status(403).send("Email can not be found");
+    res.end();
+  }
+
+  const emailPwTest = findUser(newUserEmail, newUserPassword, users)
+  if (emailPwTest) {
+    res.status(403).send("Password does not match");
+    res.end();
+  }
+
+  res.cookie("user_id", newUserId);
   res.redirect("/urls");
+
+  // console.log(req.body)
+  // const user = req.body.username;
+  // res.cookie("username", user);
+  // res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
@@ -156,7 +186,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("Email already exist please enter new email");
     res.end();
   } else {
-    users[newUserId] = { id: newUserId, email: newUserEmail, password: newUserPassword};
+    users[newUserId] = { id: newUserId, email: newUserEmail, password: newUserPassword };
     res.cookie("user_id", newUserId);
     res.redirect("/urls");
   }
