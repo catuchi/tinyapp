@@ -18,6 +18,43 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "user1": {
+    id: "1", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2": {
+    id: "2", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  },
+ "user3": {
+    id: "3", 
+    email: "user3@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
+const findUserByEmail = (email) => {
+  const givenEmail = email;
+  // loop through my object of users
+  // i will "authenticate them"!
+  for (let userKey in users) {
+    console.log(userKey);
+    console.log(users[userKey]);
+    // if givenEmail == the current user im looping through, then i found the right user
+    if (users[userKey].email === givenEmail) {
+      // that means i found the right user
+      return users[userKey];
+      //  badd, dont do this line below !
+      // return res.redirect(`/${userKey}`);
+
+    }
+  }
+  return undefined;
+}
+
 // for a get request of / this server is sending hello
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -33,18 +70,17 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] }
-  res.render("urls_new", templateVars);
+  res.render("urls_new");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const templateVars = { username: req.cookies["username"], shortURL: shortURL, longURL: urlDatabase[shortURL] };
+  const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL] };
   res.render("urls_show", templateVars);
 });
 
@@ -74,15 +110,19 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/login", (req, res) => {
-  const user = req.body.username;
-  res.cookie("username", user);
-  res.redirect("/urls");
+app.get("/register", (req, res) => {
+  res.render("register");
 });
 
-app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls");
+app.post("/register", (req, res) => {
+  // console.log(req.body);
+  const user = findUserByEmail(req.body.email);
+  if (user) {
+    res.cookie('user_id', user.id);
+    return res.redirect('/');
+  }
+
+  return res.send('Error, bad email, or pass!');
 })
 
 
