@@ -42,23 +42,20 @@ const users = {
   3: {id: 3, email: 'a@b.com',       password: '123'},
 };
 
-const findUserByEmail = (email) => {
-  const givenEmail = email;
-  // loop through my object of users
-  // i will "authenticate them"!
-  for (let userKey in users) {
-    console.log(userKey);
-    console.log(users[userKey]);
+const findUserByEmail = (newUserEmail, database) => {
+  // const givenEmail = email;
+  for (let user in database) {
     // if givenEmail == the current user im looping through, then i found the right user
-    if (users[userKey].email === givenEmail) {
+    if (database[user].email === newUserEmail) {
+      console.log("the email:", database[user].email, "given email:", newUserEmail);
       // that means i found the right user
-      return users[userKey];
+      return database[user];
       //  badd, dont do this line below !
       // return res.redirect(`/${userKey}`);
 
     }
   }
-  return undefined;
+  return false;
 }
 
 // for a get request of / this server is sending hello
@@ -127,6 +124,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
+  console.log(req.body)
   const user = req.body.username;
   res.cookie("username", user);
   res.redirect("/urls");
@@ -151,23 +149,29 @@ app.post("/register", (req, res) => {
     res.status(400).send("Please enter valid email or password");
     res.end();
   }
-  users[newUserId] = { id: newUserId, email: newUserEmail, password: newUserPassword};
   // console.log(users) 
-  const user = findUserByEmail(req.body.email);
+  const user = findUserByEmail(newUserEmail, users);
+  console.log("user:", user)
   if (user) {
     res.status(400).send("Email already exist please enter new email");
     res.end();
+  } else {
+    users[newUserId] = { id: newUserId, email: newUserEmail, password: newUserPassword};
+    res.cookie("user_id", newUserId);
+    res.redirect("/urls");
   }
   // if (user) {
   //   res.cookie("user_id", user.id);
   //   return res.redirect("/urls");
   // }
 
-  res.cookie("user_id", newUserId);
-  res.redirect("/urls");
 
   // res.send('Error, bad email, or pass!');
 });
+
+app.get("/login", (req, res) => {
+  res.render("newLoginPage");
+})
 
 
 
