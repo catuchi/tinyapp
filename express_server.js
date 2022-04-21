@@ -99,11 +99,18 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: null };
+  const userId = req.cookies.user_id;
+
+  if (userId) {
+    const templateVars = { user: null };
   const user = users[req.cookies.user_id];
   templateVars.user = user;
   // const templateVars = { username: req.cookies["username"] }
   res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
+  
 });
 
 app.get("/urls/:shortURL", (req, res) => {
