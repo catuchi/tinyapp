@@ -56,6 +56,14 @@ const findUserByEmail = (newUserEmail, database) => {
   }
   return false;
 }
+const findUserId = (newUserEmail, database) => {
+  for (let user in database) {
+    if (database[user].email === newUserEmail) {
+      return database[user].id;
+    }
+  }
+  return false;
+}
 const findUser = (newUserEmail, newUserPw, database) => {
   for (let user in database) {
     if (database[user].email === newUserEmail) {
@@ -134,25 +142,31 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-
+  console.log(req.body)
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
   // const { email, password } = req.body;
 
   const emailTest = findUserByEmail(newUserEmail, users)
-  if (emailTest) {
+  if (emailTest === false) {
     res.status(403).send("Email can not be found");
     res.end();
   }
 
   const emailPwTest = findUser(newUserEmail, newUserPassword, users)
-  if (emailPwTest) {
+  if (emailPwTest === false) {
     res.status(403).send("Password does not match");
     res.end();
   }
 
-  res.cookie("user_id", newUserId);
-  res.redirect("/urls");
+  const newUserId = findUserId(newUserEmail, users)
+
+  if (newUserId) {
+    res.cookie("user_id", newUserId);
+    res.redirect("/urls");
+  }
+
+
 
   // console.log(req.body)
   // const user = req.body.username;
@@ -161,7 +175,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
