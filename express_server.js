@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
@@ -87,9 +88,13 @@ const findUserId = (newUserEmail, database) => {
 const findUser = (newUserEmail, newUserPw, database) => {
   for (let user in database) {
     if (database[user].email === newUserEmail) {
-      if (database[user].password === newUserPw) {
+      if (bcrypt.compareSync(newUserPw, database[user].password)) {
+
         return database[user];
       }
+      // if (database[user].password === newUserPw) {
+      //   return database[user];
+      // }
     }
 
   }
@@ -121,8 +126,9 @@ app.get("/urls", (req, res) => {
 
     res.render("urls_index", templateVars);
   } else {
-    // res.render("urls_index")
-    res.status(403).send("Please register/sign in");
+    const templateVars = { user: null, urls: userUrls };
+    res.render("urls_index", templateVars)
+    // res.status(403).send("Please register/sign in");
   }
   // const templateVars = { username: req.cookies["username"], urls: urlDatabase };
 });
@@ -250,7 +256,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   // console.log(req.body);
   const newUserEmail = req.body.email;
-  const newUserPassword = req.body.password;
+  const newUserPassword = bcrypt.hashSync(req.body.password, 10);
   const newUserId = generateRandomString();
 
   if (newUserEmail === "" || newUserPassword === "") {
@@ -259,15 +265,15 @@ app.post("/register", (req, res) => {
   }
   // console.log(users) 
   const user = findUserByEmail(newUserEmail, users);
-  console.log("user:", user)
   if (user) {
     res.status(400).send("Email already exist please enter new email");
-    res.end();
+    // res.end();
   } else {
     users[newUserId] = { id: newUserId, email: newUserEmail, password: newUserPassword };
     res.cookie("user_id", newUserId);
     res.redirect("/urls");
   }
+  console.log("pw:", newUserPassword, "data", users)
   // if (user) {
   //   res.cookie("user_id", user.id);
   //   return res.redirect("/urls");
@@ -279,7 +285,7 @@ app.post("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   res.render("newLoginPage");
-})
+});
 
 
 
