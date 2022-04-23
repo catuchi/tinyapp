@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 // const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session');
 const { generateRandomString, urlsForUser, findUserByEmail } = require("./helperFunctions");
-const { findUserId } = require("./helperFunctions");
+const { findUserId, findUser } = require("./helperFunctions");
 
 // middleware used to make data received from POST requests to be readable
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -69,7 +69,7 @@ const users = {
 
 // for a get request of / this server is sending hello
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
 // add route /urls.json
@@ -91,7 +91,7 @@ app.get("/urls", (req, res) => {
   }
 
   const user = users[req.session.user_id];
-  const userUrls = urlsForUser(req.session.user_id);
+  const userUrls = urlsForUser(req.session.user_id, urlDatabase);
 
   const templateVars = { user: null, urls: userUrls };
   templateVars.user = user;
@@ -101,9 +101,7 @@ app.get("/urls", (req, res) => {
   } else {
     const templateVars = { user: null, urls: userUrls };
     res.render("urls_index", templateVars)
-    // res.status(403).send("Please register/sign in");
   }
-  // const templateVars = { username: req.cookies["username"], urls: urlDatabase };
 });
 
 app.get("/urls/new", (req, res) => {
@@ -113,7 +111,6 @@ app.get("/urls/new", (req, res) => {
     const templateVars = { user: null };
     const user = users[req.session.user_id];
     templateVars.user = user;
-    // const templateVars = { username: req.cookies["username"] }
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -138,10 +135,11 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
 
   if (user) {
     const shortURL = req.params.shortURL;
+    console.log("shorturl:", shortURL)
     const longURL = urlDatabase[shortURL].longURL;
     res.redirect(longURL);
   } else {
@@ -154,7 +152,6 @@ app.post("/urls", (req, res) => {
   const randomStr = generateRandomString();
   urlDatabase[randomStr] = randomStr
   urlDatabase[randomStr] = { longURL: req.body.longURL, userID: req.session.user_id };
-  // urlDatabase[randomStr].longURL = req.body.longURL;
   res.redirect(`/urls/${randomStr}`);
 });
 
@@ -189,7 +186,6 @@ app.post("/login", (req, res) => {
   console.log(req.body)
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
-  // const { email, password } = req.body;
 
   const emailTest = findUserByEmail(newUserEmail, users)
   if (emailTest === false) {
@@ -213,7 +209,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session.user_id = null;
   res.redirect("/login");
 });
 
@@ -247,7 +243,6 @@ app.get("/login", (req, res) => {
 });
 
 
-// setting up the server to listen to request from the client
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

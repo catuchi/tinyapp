@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 function generateRandomString() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const length = 6;
@@ -11,7 +13,7 @@ function generateRandomString() {
   return result;
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (id, urlDatabase) => {
   const result = {};
   for (let shorturl in urlDatabase) {
     if (urlDatabase[shorturl].userID === id) {
@@ -28,7 +30,7 @@ const findUserByEmail = (newUserEmail, database) => {
       return database[user];
     }
   }
-  return false;
+  return undefined;
 };
 
 const findUserId = (newUserEmail, database) => {
