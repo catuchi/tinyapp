@@ -119,16 +119,15 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user = users[req.session.user_id];
+  
+  let user = users[req.session.user_id];
+  let shortURL = req.params.shortURL;
 
-  if (user) {
-
-    const shortURL = req.params.shortURL;
-    const templateVars = { user: null, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL };
-    const user = users[req.session.user_id];
-    templateVars.user = user;
-    // const templateVars = { username: req.cookies["username"], shortURL: shortURL, longURL: urlDatabase[shortURL] };
+  if (user.id === urlDatabase[shortURL].userID) {
+    const templateVars = { user: users[req.session.user_id], shortURL: shortURL, longURL: urlDatabase[shortURL].longURL };
     res.render("urls_show", templateVars);
+  } else if (user.id === urlDatabase[shortURL].userID) {
+    res.redirect("/urls");
   } else {
     res.status(403).send("Please register/sign in");
   }
@@ -167,6 +166,10 @@ app.post("/urls/:shortUrl/delete", (req, res) => {
   }
 
 });
+
+// app.get("/urls/:id", (req, res) => {
+
+// });
 
 app.post("/urls/:id", (req, res) => {
   const user = users[req.session.user_id];
@@ -214,7 +217,14 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register");
+  const user = users[req.session.user_id];
+
+  if (user) {
+    res.redirect("/urls")
+  } else {
+    res.render("register");
+  }
+  // res.render("register");
 });
 
 app.post("/register", (req, res) => {
@@ -239,7 +249,14 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("newLoginPage");
+  const user = users[req.session.user_id];
+
+  if (user) {
+    res.redirect("/urls")
+  } else {
+    res.render("newLoginPage");
+  }
+  // res.render("newLoginPage");
 });
 
 
