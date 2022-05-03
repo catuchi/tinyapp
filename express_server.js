@@ -39,7 +39,19 @@ const urlDatabase = {
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "nkzSdf"
-  }
+  },
+  QiiEEp: {
+    longURL: "http://youtube.com",
+    userID: "JEEOF1"
+  },
+  "4frbpi": {
+    longURL: "http://yahoo.com",
+    userID: "JEEOF1"
+  },
+  JuU2Qa: {
+    longURL: "http://amazon.com",
+    userID: "JEEOF1"
+  },
 };
 
 
@@ -63,6 +75,11 @@ const users = {
     id: 'nkzSdf',
     email: 'bigfish@ocean.ca',
     password: '$2a$10$qeJUBb5zboOqPTLiCI.30eRqqw2r4rhH1VnUs0JuNGjwxYm.aM7Fa'
+  },
+  JEEOF1: {
+    id: 'JEEOF1',
+    email: 'obiwan@gmail.com',
+    password: '$2a$10$TqGh5H9ESrqboEWiFAKIfer.kP1UAQPuqa4V0XzzJg6rDUZpQi.pq'
   }
 };
 
@@ -82,8 +99,6 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  console.log("sess", req.session.user_id)
-  console.log("cook", req.cookies)
 
   if (req.session.user_id === undefined) {
     const templateVars = { user: null, urls: null };
@@ -138,7 +153,6 @@ app.get("/u/:shortURL", (req, res) => {
 
   if (user) {
     const shortURL = req.params.shortURL;
-    console.log("shorturl:", shortURL)
     const longURL = urlDatabase[shortURL].longURL;
     res.redirect(longURL);
   } else {
@@ -186,7 +200,6 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.body)
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
 
