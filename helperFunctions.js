@@ -26,7 +26,6 @@ const urlsForUser = (id, urlDatabase) => {
 const findUserByEmail = (newUserEmail, database) => {
   for (let user in database) {
     if (database[user].email === newUserEmail) {
-      console.log("the email:", database[user].email, "given email:", newUserEmail);
       return database[user];
     }
   }
