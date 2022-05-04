@@ -1,101 +1,29 @@
 const express = require("express");
 const bcrypt = require('bcryptjs');
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const bodyParser = require("body-parser");
-// const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session');
 const { generateRandomString, urlsForUser, findUserByEmail } = require("./helperFunctions");
 const { findUserId, findUser } = require("./helperFunctions");
+const { urlDatabase, users } = require("./helperFunctions");
 
-// middleware used to make data received from POST requests to be readable
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(cookieParser())
 app.use(cookieSession({
   name: 'session',
   keys: ["paraguay"],
 
-  // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  maxAge: 24 * 60 * 60 * 1000
 }))
 
-// instruct Express app to use EJS as templating engine
 app.set("view engine", "ejs");
 
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "nkzSdf"
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "nkzSdf"
-  },
-  b2xVn2: {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "nkzSdf"
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "nkzSdf"
-  },
-  QiiEEp: {
-    longURL: "http://youtube.com",
-    userID: "JEEOF1"
-  },
-  "4frbpi": {
-    longURL: "http://yahoo.com",
-    userID: "JEEOF1"
-  },
-  JuU2Qa: {
-    longURL: "http://amazon.com",
-    userID: "JEEOF1"
-  },
-};
-
-
-const users = { 
-  "user1": {
-    id: "user1", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2": {
-    id: "user2", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  },
- "user3": {
-    id: "user3", 
-    email: "user3@example.com", 
-    password: "dishwasher-funk"
-  },
-  nkzSdf: {
-    id: 'nkzSdf',
-    email: 'bigfish@ocean.ca',
-    password: '$2a$10$qeJUBb5zboOqPTLiCI.30eRqqw2r4rhH1VnUs0JuNGjwxYm.aM7Fa'
-  },
-  JEEOF1: {
-    id: 'JEEOF1',
-    email: 'obiwan@gmail.com',
-    password: '$2a$10$TqGh5H9ESrqboEWiFAKIfer.kP1UAQPuqa4V0XzzJg6rDUZpQi.pq'
-  }
-};
-
-
-// for a get request of / this server is sending hello
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 
-// add route /urls.json
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.get("/urls", (req, res) => {
@@ -181,10 +109,6 @@ app.post("/urls/:shortUrl/delete", (req, res) => {
 
 });
 
-// app.get("/urls/:id", (req, res) => {
-
-// });
-
 app.post("/urls/:id", (req, res) => {
   const user = users[req.session.user_id];
 
@@ -219,13 +143,12 @@ app.post("/login", (req, res) => {
   req.session.user_id = newUserId;
 
   if (newUserId) {
-    res.cookie("user_id", req.session.user_id);
     res.redirect("/urls");
   }
 });
 
 app.post("/logout", (req, res) => {
-  req.session.user_id = null;
+  req.session = null;
   res.redirect("/login");
 });
 
@@ -235,9 +158,9 @@ app.get("/register", (req, res) => {
   if (user) {
     res.redirect("/urls")
   } else {
-    res.render("register");
+    const templateVars = { user };
+    res.render("register", templateVars);
   }
-  // res.render("register");
 });
 
 app.post("/register", (req, res) => {
@@ -252,11 +175,9 @@ app.post("/register", (req, res) => {
   const user = findUserByEmail(newUserEmail, users);
   if (user) {
     res.status(400).send("Email already exist please enter new email");
-    // res.end();
   } else {
     users[newUserId] = { id: newUserId, email: newUserEmail, password: newUserPassword };
     req.session.user_id = newUserId;
-    res.cookie("user_id", req.session.user_id);
     res.redirect("/urls");
   }
 });
@@ -267,9 +188,9 @@ app.get("/login", (req, res) => {
   if (user) {
     res.redirect("/urls")
   } else {
-    res.render("newLoginPage");
+    const templateVars = { user };
+    res.render("newLoginPage", templateVars);
   }
-  // res.render("newLoginPage");
 });
 
 
